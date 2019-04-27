@@ -1,0 +1,40 @@
+h1 {
+    color: black;
+    text-align: left;
+    font-family: sans-serif;
+}
+
+h2 {
+    color: black;
+    text-align: left;
+    font-family: sans-serif;
+}
+
+h3 {
+    color: black;
+    text-align: left;
+    font-family: sans-serif;
+}
+
+p {
+    color: black;
+    text-align: left;
+    font-family: sans-serif;
+}
+
+a:link {
+    color: blue;
+    text-decoration: none;
+}
+a:visited {
+    color: blue;
+    text-decoration: none;
+}
+a:hover {
+    color: red;
+    text-decoration: none;
+}
+a:active {
+    color: red;
+    text-decoration: none;
+}
