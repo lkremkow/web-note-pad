@@ -1,6 +1,7 @@
 <?php
 
-$data = new SQLite3('data.sqlite', SQLITE3_OPEN_READONLY);
+include 'db-secrets.php';
+$data = new mysqli($hostname, $username, $password, $db_name);
 
 $fetch_note_statement = $data->prepare('SELECT * FROM notes WHERE id = ?');
 
@@ -11,12 +12,13 @@ if (isset($_GET["id"])) {
   if (is_numeric($note_id)) {
     if ( $note_id > 0 ) {
 
-      $fetch_note_statement->bindValue(1, $note_id);
-      $note_result = $fetch_note_statement->execute();
-      if ( $note_result->numColumns() > 0 ) {
-        $note_row = $note_result->fetchArray(SQLITE3_ASSOC);
-      }
-      $note_result->finalize();
+      $fetch_note_statement->bind_param('i', $note_id);
+      $fetch_note_statement->execute();
+      $fetch_note_statement_result = $fetch_note_statement->get_result();
+      $note_data = $fetch_note_statement_result->fetch_all(MYSQLI_ASSOC);
+      $fetch_note_statement_result->free();
+      $fetch_note_statement->close();
+      $data->close();
 
     } else {
       // the id argument we go was is a negative numeber, set to 0
@@ -51,11 +53,11 @@ if ($note_id == 0) {
   echo "<h1>Edit Note</h1>";
 
   echo "<form action=\"note-save.php\" method=\"post\">";
-  echo "<p>Name: <input type=\"text\" name=\"name\" value=\"" . $note_row["name"] . "\"></p>";
+  echo "<p>Name: <input type=\"text\" name=\"name\" value=\"" . $note_data[0]["name"] . "\"></p>";
   
-  echo "<p>Text: <textarea name=\"text\" rows=\"10\" cols=\"30\">" . $note_row["text"] . "</textarea></p>";
+  echo "<p>Text: <textarea name=\"text\" rows=\"10\" cols=\"30\">" . $note_data[0]["text"] . "</textarea></p>";
 
-  echo "<input type=\"hidden\" name=\"note_id\" value=\"" . $note_row["id"] . "\">";
+  echo "<input type=\"hidden\" name=\"note_id\" value=\"" . $note_data[0]["id"] . "\">";
   echo "<input type=\"submit\" value=\"Save\">";
   echo "</form>";
 
@@ -64,7 +66,5 @@ if ($note_id == 0) {
 }
 
 include 'footer.php';
-
-$data->close();
 
 ?>

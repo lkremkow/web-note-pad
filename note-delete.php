@@ -7,16 +7,17 @@ if (isset($_GET["name"])) {
   $note_name=urldecode(htmlspecialchars($_GET["name"]));  
 }
 
-$data = new SQLite3('data.sqlite', SQLITE3_OPEN_READWRITE);
+include 'db-secrets.php';
+$data = new mysqli($hostname, $username, $password, $db_name);
 
 if (is_numeric($note_id)) {
-  $delete_note_statement = $data->prepare('DELETE FROM "notes" WHERE "id" = ? AND "name" = ?');
 
-  $delete_note_statement->bindValue(1, $note_id);
-  $delete_note_statement->bindValue(2, $note_name);
+  $delete_note_statement = $data->prepare('DELETE FROM notes WHERE id = ? AND name = ?');
+  
+  $delete_note_statement->bind_param('is', $note_id, $note_name);
+  $delete_note_statement->execute();
+  $delete_note_statement->close();
 
-  $delete_note_result = $delete_note_statement->execute();
-  $delete_note_result->finalize(); 
 }
 
 $data->close();

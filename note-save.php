@@ -20,7 +20,8 @@ if (isset($_POST["text"])) {
   $text="";
 }
 
-$data = new SQLite3('data.sqlite', SQLITE3_OPEN_READWRITE);
+include 'db-secrets.php';
+$data = new mysqli($hostname, $username, $password, $db_name);
 
 if ( $note_id == "" ) {
 
@@ -29,30 +30,21 @@ if ( $note_id == "" ) {
 
   $note_id = $created_timestamp . random_int(10000, 99999);
 
-  $insert_new_note_statement = $data->prepare('INSERT INTO notes ("id", "name", "text", "created", "updated") VALUES (?, ?, ?, ?, ?)');
+  $insert_new_note_statement = $data->prepare('INSERT INTO notes (id, name, text, created, updated) VALUES (?, ?, ?, ?, ?)');
   
-  $insert_new_note_statement->bindValue(1, $note_id);
-  $insert_new_note_statement->bindValue(2, $name);
-  $insert_new_note_statement->bindValue(3, $text);
-  $insert_new_note_statement->bindValue(4, $created_timestamp);
-  $insert_new_note_statement->bindValue(5, $updated_timestamp);
-  
-  $insert_new_contact_result = $insert_new_note_statement->execute();
-  $insert_new_contact_result->finalize();
+  $insert_new_note_statement->bind_param('issii', $note_id, $name, $text, $created_timestamp, $updated_timestamp);
+  $insert_new_note_statement->execute();
+  $insert_new_note_statement->close();
 
 } elseif (is_numeric($note_id)) {
 
   $updated_timestamp = time();
 
-  $update_note_statement = $data->prepare('UPDATE notes SET "name" = ?, "text" = ?, "updated" = ? WHERE id = ?');
+  $update_note_statement = $data->prepare('UPDATE notes SET name = ?, text = ?, updated = ? WHERE id = ?');
   
-  $update_note_statement->bindValue(1, $name);
-  $update_note_statement->bindValue(2, $text);
-  $update_note_statement->bindValue(3, $updated_timestamp);
-  $update_note_statement->bindValue(4, $note_id);
-  
-  $update_contact_result = $update_note_statement->execute();
-  $update_contact_result->finalize();
+  $update_note_statement->bind_param('ssii', $name, $text, $updated_timestamp, $note_id);
+  $update_note_statement->execute();
+  $update_note_statement->close();
 
 }
 
